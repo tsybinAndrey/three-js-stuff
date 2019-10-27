@@ -1,0 +1,30 @@
+{
+  "name": "three-js-stuff",
+  "version": "0.0.0",
+  "description": "here we can try three.js",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "three.js"
+  ],
+  "author": "Andrew Tcybin",
+  "license": "ISC",
+  "dependencies": {
+    "js": "^0.1.0",
+    "three": "^0.109.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "file-loader": "^4.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
+  }
+}
