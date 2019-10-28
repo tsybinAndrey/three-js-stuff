@@ -7,94 +7,134 @@ import './index.css';
 
 // Load the favicon
 import '!file-loader?name=[name].[ext]!./favicon.ico';
+
 /**
- * Main Visualisation class
- * domElementContainer - reference to our app container
+ * Things needed for developing 3D shit
  */
-class Visualisation {
-  constructor({
-    domElementContainer,
-    cameraOptions: {
-      fov, near, far,
-    },
-  }) {
-    this.container = domElementContainer;
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
-      fov,
-      domElementContainer.clientWidth / domElementContainer.clientHeight,
-      near,
-      far,
-    );
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.controls = new THREE.OrbitControls(this.camera, this.container);
-  }
+function configureScene({ color }) {
+  const scene = new THREE.Scene();
 
-  init() {
-    this.camera.position.set(-5, 5, 10);
+  scene.background = new THREE.Color(color);
 
-    this.scene.background = new THREE.Color('skyblue');
-
-    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-
-    this.renderer.gammaFactor = 2.2;
-    this.renderer.gammaOutput = true;
-    this.renderer.physicallyCorrectLights = true;
-
-    this.container.appendChild(this.renderer.domElement);
-
-    return this;
-  }
-
-  setupLight() {
-    const ambientLight = new THREE.HemisphereLight(
-      0xddeeff, // bright sky color
-      0x202020, // dim ground color
-      3, // intensity
-      );
-    
-    const light = new THREE.DirectionalLight(0xffffff, 3.0);
-    
-    light.position.set( 10, 10, 10 );
-
-    this.scene.add( ambientLight, light );
-
-    return this;
-  }
-
-  render() {
-    this.renderer.setAnimationLoop(() => {
-      this.renderer.render( this.scene, this.camera );
-    });
-
-    return this;
-  }
-
-  resizeEventHandler() {
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-
-    // update the camera's frustum
-    this.camera.updateProjectionMatrix();
-  
-    // update the size of the renderer AND the canvas
-    this.renderer.setSize( this.container.clientWidth, this.container.clientHeight );
-  }
+  return scene;
 }
 
-const visualization = new Visualisation({
-  domElementContainer: document.getElementById('scene-container'),
-  cameraOptions: {
-    fov: 35,
-    near: 0.5,
-    far: 1000,
-  },
+function configureCamera({ fov, near, far, aspectRatio }, { x, y, z }) {
+  const camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+
+  // set camera position
+  camera.position.set(x, y, z);
+
+  return camera;
+}
+
+function configureLight(
+  hemisphereLightOptions,
+  directionalLightOptions,
+) {
+  const ambientLight = new THREE.HemisphereLight(
+    hemisphereLightOptions.color,
+    hemisphereLightOptions.dimColor,
+    hemisphereLightOptions.intensity,
+  );
+  
+  const light = new THREE.DirectionalLight(
+    directionalLightOptions.color,
+    directionalLightOptions.intensity,
+  );
+  
+  light.position.set( 
+    directionalLightOptions.position.x,
+    directionalLightOptions.position.y,
+    directionalLightOptions.position.z,
+  );
+
+  return { ambientLight, light };
+}
+
+function configureRenderer({
+  devicePixelRatio,
+  clientHeight,
+  clientWidth,
+}) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+  renderer.setSize(clientWidth, clientHeight);
+  renderer.setPixelRatio(devicePixelRatio);
+
+  renderer.gammaFactor = 2.2;
+  renderer.gammaOutput = true;
+  renderer.physicallyCorrectLights = true;
+
+  return renderer;
+}
+
+function render({ renderer, camera, scene }) {
+  renderer.setAnimationLoop(() => {
+    renderer.render(scene, camera);
+  });
+}
+
+function getAspectRatio(container) {
+  return container.clientWidth / container.clientHeight;
+}
+
+/**
+ * Setup the main parts
+ */
+const appContainer = document.getElementById('scene-container');
+const scene = configureScene({ color: 'skyblue' });
+const camera = configureCamera({
+  fov: 45,
+  near: 1,
+  far: 1000,
+  aspectRatio: getAspectRatio(appContainer),
+}, {
+  x: -5,
+  y: 5,
+  z: 10,
+});
+const {ambientLight, light} = configureLight({
+  color: 0xddeeff,
+  dimColor: 0x202020, 
+  intensity: 3,
+}, {
+  color: 0xffffff,
+  intensity: 3,
+  position: {
+    x: -10,
+    y: -10,
+    z: 10,
+  }
+});
+const renderer = configureRenderer({
+  devicePixelRatio: window.devicePixelRatio,
+  clientHeight: appContainer.clientHeight,
+  clientWidth: appContainer.clientWidth,
+});
+
+appContainer.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, appContainer);
+
+window.addEventListener('resize', () => {
+  camera.aspect = getAspectRatio(appContainer);
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(appContainer.clientWidth, appContainer.clientHeight);
 });
 
 // const chessBox = new ChessBox();
 const train = new Train();
-visualization.scene.add(train);
 
-window.addEventListener('resize', visualization.resizeEventHandler);
 
-visualization.init().setupLight().render();
+scene.add(ambientLight, light);
+scene.add(train);
+
+render({
+  renderer,
+  camera,
+  scene,
+});
+
