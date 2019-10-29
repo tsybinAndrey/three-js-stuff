@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const runningDir = process.cwd();
 
@@ -50,6 +51,12 @@ module.exports = {
     new webpack.ProvidePlugin({
       'THREE': 'three'
     }),
+    new CopyWebpackPlugin([
+      {
+        from: 'src/models',
+        to: '',
+      }
+    ])
   ],
 
   devtool: 'eval-source-map',

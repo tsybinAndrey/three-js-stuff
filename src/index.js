@@ -1,5 +1,5 @@
 import 'three/examples/js/controls/OrbitControls';
-// import ChessBox from './ChessBox';
+import 'three/examples/js/loaders/GLTFLoader';
 import Train from './Train';
 
 // reset css
@@ -86,13 +86,13 @@ const appContainer = document.getElementById('scene-container');
 const scene = configureScene({ color: 'skyblue' });
 const camera = configureCamera({
   fov: 45,
-  near: 1,
-  far: 1000,
+  near: 0.1,
+  far: 10000,
   aspectRatio: getAspectRatio(appContainer),
 }, {
   x: -5,
   y: 5,
-  z: 10,
+  z: -10,
 });
 const {ambientLight, light} = configureLight({
   color: 0xddeeff,
@@ -102,9 +102,9 @@ const {ambientLight, light} = configureLight({
   color: 0xffffff,
   intensity: 3,
   position: {
-    x: -10,
-    y: -10,
-    z: 10,
+    x: 0,
+    y: 10,
+    z: 20,
   }
 });
 const renderer = configureRenderer({
@@ -125,12 +125,24 @@ window.addEventListener('resize', () => {
   renderer.setSize(appContainer.clientWidth, appContainer.clientHeight);
 });
 
-// const chessBox = new ChessBox();
-const train = new Train();
+const loader = new THREE.GLTFLoader();
 
+loader.load(
+  '/chair/chair.gltf',
+  function ( gltf ) {
+    const root = gltf.scene;
+    root.scale.set(0.002, 0.002, 0.002);
+    scene.add( root );
+  },
+  function(xhr) {
+    console.log(( xhr.loaded / xhr.total * 100 ) + '% loaded');
+  },
+  function ( error ) {
+    console.log(error);
+  },
+);
 
 scene.add(ambientLight, light);
-scene.add(train);
 
 render({
   renderer,
