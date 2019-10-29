@@ -1,6 +1,6 @@
 import 'three/examples/js/controls/OrbitControls';
-import 'three/examples/js/loaders/GLTFLoader';
-import Train from './Train';
+import Room from './Room';
+import { renderChair } from './Chair';
 
 // reset css
 import './index.css';
@@ -87,7 +87,7 @@ const scene = configureScene({ color: 'skyblue' });
 const camera = configureCamera({
   fov: 45,
   near: 0.1,
-  far: 10000,
+  far: 100,
   aspectRatio: getAspectRatio(appContainer),
 }, {
   x: -5,
@@ -125,22 +125,11 @@ window.addEventListener('resize', () => {
   renderer.setSize(appContainer.clientWidth, appContainer.clientHeight);
 });
 
-const loader = new THREE.GLTFLoader();
+const room = new Room();
 
-loader.load(
-  '/chair/chair.gltf',
-  function ( gltf ) {
-    const root = gltf.scene;
-    root.scale.set(0.002, 0.002, 0.002);
-    scene.add( root );
-  },
-  function(xhr) {
-    console.log(( xhr.loaded / xhr.total * 100 ) + '% loaded');
-  },
-  function ( error ) {
-    console.log(error);
-  },
-);
+scene.add(room);
+
+renderChair(scene);
 
 scene.add(ambientLight, light);
 
