@@ -15,7 +15,7 @@
   "dependencies": {
     "copy-webpack-plugin": "^5.0.4",
     "js": "^0.1.0",
-    "three": "^0.109.0"
+    "three": "^0.125.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
